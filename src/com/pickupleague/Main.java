@@ -87,10 +87,8 @@ public class Main {
             System.out.println("A player with ID " + id + " already exists. Cancelled.");
             return;
         }
-        System.out.print("First name: ");
-        String first = scanner.nextLine().trim();
-        System.out.print("Last name: ");
-        String last = scanner.nextLine().trim();
+        String first = readName("First name: ");
+        String last = readName("Last name: ");
         LocalDate dob = readDate("Date of birth (yyyy-MM-dd): ");
         String sport = readSport("Sport (Soccer/Basketball): ");
         int jersey = readIntRange("Jersey number (0-99): ", 0, 99);
@@ -200,6 +198,26 @@ public class Main {
                 return LocalDate.parse(raw);
             } catch (DateTimeParseException e) {
                 System.out.println("Invalid date. Use the format yyyy-MM-dd (e.g. 2001-08-15).");
+            }
+        }
+    }
+
+    /**
+     * Reads a name, re-prompting immediately until it is letters and spaces only,
+     * non-empty, and not too long.
+     */
+    private String readName(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String raw = scanner.nextLine().trim();
+            if (raw.isEmpty()) {
+                System.out.println("Name cannot be empty. Try again.");
+            } else if (raw.length() > 40) {
+                System.out.println("Name is too long (40 characters max). Try again.");
+            } else if (!raw.matches("[a-zA-Z][a-zA-Z ]*")) {
+                System.out.println("Name must contain only letters and spaces. Try again.");
+            } else {
+                return raw;
             }
         }
     }

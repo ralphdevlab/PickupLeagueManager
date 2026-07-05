@@ -47,24 +47,29 @@ public class PlayerValidator {
 
     /**
      * Runs every rule and returns the FIRST error found as a message String,
-     * or null if the player passes all checks. The caller reads this to know
-     * exactly why a player was rejected.
+     * or null if the player passes all checks. Both the manual-add path and the
+     * file-load path call this, so the rules are identical everywhere.
      */
     public String getValidationError(Player player, List<Player> existingPlayers) {
-        if (player.getFirstName() == null || player.getFirstName().isBlank()) {
-            return "first name cannot be empty.";
+        if (!isNameValid(player.getFirstName())) {
+            return "first name must be letters only (no numbers or symbols) and not empty.";
         }
-        if (player.getLastName() == null || player.getLastName().isBlank()) {
-            return "last name cannot be empty.";
+        if (!isNameValid(player.getLastName())) {
+            return "last name must be letters only (no numbers or symbols) and not empty.";
         }
-
-        if (!player.getSport().equalsIgnoreCase("Soccer")
-                && !player.getSport().equalsIgnoreCase("Basketball")) {
+        if (player.getSport() == null
+                || (!player.getSport().equalsIgnoreCase("Soccer")
+                && !player.getSport().equalsIgnoreCase("Basketball"))) {
             return "sport must be Soccer or Basketball.";
         }
-
         if (player.getJerseyNumber() < 0 || player.getJerseyNumber() > 99) {
             return "jersey number must be between 0 and 99.";
+        }
+        if (player.getTeamId() < 1 || player.getTeamId() > 999) {
+            return "team ID must be between 1 and 999.";
+        }
+        if (player.getPlayerId() < 1 || player.getPlayerId() > 9999) {
+            return "player ID must be between 1 and 9999.";
         }
         if (!isAgeValid(player)) {
             return "player's age must be between " + minAge + " and " + maxAge + ".";
@@ -73,6 +78,23 @@ public class PlayerValidator {
             return "jersey number " + player.getJerseyNumber()
                     + " is already taken on team " + player.getTeamId() + ".";
         }
-        return null; // null means "no error — the player is valid"
+        return null;
+    }
+
+    /**
+     * Checks whether a name is valid: not empty, not too long, and made only of
+     * letters and spaces (so "Mary Jane" works, but "12345", "@#$", and blanks do not).
+     * Returns true if the name is acceptable.
+     */
+    public boolean isNameValid(String name) {
+        if (name == null) {
+            return false;
+        }
+        String trimmed = name.trim();
+        if (trimmed.isEmpty() || trimmed.length() > 40) {
+            return false;
+        }
+        // letters and spaces only
+        return trimmed.matches("[a-zA-Z][a-zA-Z ]*");
     }
 }
