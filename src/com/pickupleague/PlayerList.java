@@ -153,16 +153,30 @@ public class PlayerList {
                 + target.getLastName() + ") was removed.";
     }
 
-    // UPDATE
     /**
      * Updates one field of an existing player, chosen by field number.
-     * Returns a message describing the outcome; bad input is caught, not crashed.
+     * After applying the change, re-runs full validation. If the new value
+     * breaks a rule (duplicate jersey, bad sport, out-of-range age), the change
+     * is ROLLED BACK to the old value and an error is returned. This makes the
+     * update path as safe as the add path — bad data can never be saved.
+     * Returns a message describing the outcome.
      */
     public String updatePlayerField(int playerId, int fieldChoice, String newValue) {
         Player p = findById(playerId);
         if (p == null) {
             return "No player found with ID " + playerId + ".";
         }
+
+        // Remember the current values so we can roll back if the change is invalid
+        String oldFirst = p.getFirstName();
+        String oldLast = p.getLastName();
+        LocalDate oldDob = p.getDateOfBirth();
+        String oldSport = p.getSport();
+        int oldJersey = p.getJerseyNumber();
+        int oldTeam = p.getTeamId();
+        String oldStatus = p.getEligibilityStatus();
+
+        // Apply the requested change (bad number/date formats are caught here)
         try {
             switch (fieldChoice) {
                 case 1: p.setFirstName(newValue); break;
@@ -179,6 +193,24 @@ public class PlayerList {
         } catch (DateTimeParseException e) {
             return "Update failed: date must be in the format yyyy-MM-dd.";
         }
+
+        // Re-check business rules now that the change is applied
+        String validationError = validator.getValidationError(p, players);
+        if (validationError != null) {
+            // Roll back every field to its previous value
+            p.setFirstName(oldFirst);
+            p.setLastName(oldLast);
+            p.setDateOfBirth(oldDob);
+            p.setSport(oldSport);
+            p.setJerseyNumber(oldJersey);
+            p.setTeamId(oldTeam);
+            p.setEligibilityStatus(oldStatus);
+            return "Update rejected: " + validationError + " No changes were made.";
+        }
+
+        // If age changed, refresh eligibility to stay consistent
+        p.setEligibilityStatus(p.determineEligibility(18, 45));
+
         return "Player ID " + playerId + " updated successfully.";
     }
 
