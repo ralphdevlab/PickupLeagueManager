@@ -1,0 +1,28 @@
+# Pickup League Manager - sample data file
+# Format: id|first|last|yyyy-MM-dd|sport|jersey|teamId|status
+# (status is recalculated on load, so the value here is just a placeholder)
+101|Marcus|Chen|2000-05-14|Basketball|23|10|Pending
+102|Sofia|Reyes|1998-11-02|Soccer|9|20|Pending
+103|Jordan|Blake|1995-03-21|Basketball|7|10|Pending
+104|Amara|Okafor|2001-07-30|Soccer|11|20|Pending
+105|Liam|Nguyen|1999-01-15|Basketball|3|10|Pending
+106|Elena|Petrov|1997-09-08|Soccer|17|30|Pending
+107|Devon|Carter|2002-12-01|Basketball|21|10|Pending
+108|Priya|Sharma|1996-06-19|Soccer|8|20|Pending
+109|Noah|Williams|1994-04-25|Basketball|15|30|Pending
+110|Isabella|Rossi|2000-10-11|Soccer|6|20|Pending
+111|Andre|Santos|2008-08-08|Soccer|14|30|Pending
+112|Grace|Kim|1975-02-17|Basketball|33|10|Pending
+113|Tyler|Brooks|1993-05-05|Basketball|12|30|Pending
+114|Maya|Johnson|2003-03-03|Soccer|10|20|Pending
+115|Omar|Hassan|1990-07-22|Soccer|4|30|Pending
+116|Chloe|Martin|2001-09-14|Basketball|24|10|Pending
+117|Ethan|Davis|1988-11-30|Basketball|8|30|Pending
+118|Lucia|Fernandez|1999-12-25|Soccer|7|20|Pending
+119|Kai|Anderson|2007-06-10|Basketball|5|10|Pending
+120|Nadia|Ahmed|1996-01-19|Soccer|13|30|Pending
+121|Ryan|Thompson|1972-04-14|Soccer|19|20|Pending
+122|Zoe|Clark|2004-08-27|Basketball|22|10|Pending
+# --- the two lines below are intentionally BAD to test the loader's error handling ---
+999|BadNumber|Player|2000-01-01|Basketball|notanumber|10|Pending
+888|Wrong|Sport|1998-05-05|Tennis|10|20|Pending
