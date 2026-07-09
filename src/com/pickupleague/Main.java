@@ -188,16 +188,49 @@ public class Main {
     }
 
     /**
-     * Reads a date in yyyy-MM-dd form, re-prompting until it's valid.
+     * Reads a date in yyyy-MM-dd form and tells the user EXACTLY what is wrong
+     * if it fails: bad format, impossible month, impossible day, or an
+     * unreasonable year. Re-prompts until a valid, real date is entered.
      */
     private LocalDate readDate(String prompt) {
         while (true) {
             System.out.print(prompt);
             String raw = scanner.nextLine().trim();
+
+            // 1. Check the overall shape: 4 digits - 2 digits - 2 digits
+            if (!raw.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                System.out.println("Wrong format. Use yyyy-MM-dd, e.g. 2001-08-15 "
+                        + "(4-digit year, 2-digit month, 2-digit day).");
+                continue;
+            }
+
+            // 2. Pull out the three parts as numbers
+            String[] parts = raw.split("-");
+            int year = Integer.parseInt(parts[0]);
+            int month = Integer.parseInt(parts[1]);
+            int day = Integer.parseInt(parts[2]);
+
+            // 3. Check each part with a specific message
+            if (year < 1900 || year > java.time.LocalDate.now().getYear()) {
+                System.out.println("Year " + year + " is not valid. Enter a year between "
+                        + "1900 and " + java.time.LocalDate.now().getYear() + ".");
+                continue;
+            }
+            if (month < 1 || month > 12) {
+                System.out.println("Month " + month + " does not exist. Months are 01 to 12.");
+                continue;
+            }
+            if (day < 1 || day > 31) {
+                System.out.println("Day " + day + " does not exist. Days are 01 to 31.");
+                continue;
+            }
+
+            // 4. Final check: is it a REAL calendar date? (catches Feb 30, Apr 31, etc.)
             try {
-                return LocalDate.parse(raw);
-            } catch (DateTimeParseException e) {
-                System.out.println("Invalid date. Use the format yyyy-MM-dd (e.g. 2001-08-15).");
+                return java.time.LocalDate.of(year, month, day);
+            } catch (java.time.DateTimeException e) {
+                System.out.println("That day does not exist in that month "
+                        + "(for example, February has no 30th). Try again.");
             }
         }
     }
