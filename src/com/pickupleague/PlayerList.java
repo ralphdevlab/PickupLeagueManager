@@ -233,7 +233,7 @@ public class PlayerList {
         if (count == 0) {
             return -1; // signal: no players on this team
         }
-        return (double) total / count;
+        return (double) total / count ;
     }
 
     /** Returns how many players are on a given team. */
@@ -251,4 +251,10 @@ public class PlayerList {
     public int size() {
         return players.size();
     }
+
+    /** Returns a copy of all players, used by the GUI to populate the table. */
+    public List<Player> getAllPlayers() {
+        return new ArrayList<>(players);
+    }
+
 }
