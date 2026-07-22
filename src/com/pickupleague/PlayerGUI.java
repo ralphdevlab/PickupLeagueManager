@@ -6,21 +6,25 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.io.File;
 import java.time.LocalDate;
 import java.time.DateTimeException;
 import java.util.List;
 
 /**
- * The graphical user interface (View layer) for the Pickup League Manager.
+ * The graphical user interface of the Pickup League Manager.
+ * <p>
+ * This is the view layer of the application. It shows every player in a sortable
+ * table, provides a form for adding and editing records, and offers buttons for
+ * each of the four CRUD operations plus the custom average age action.
+ * <p>
+ * The interface never touches the database directly. Every action calls a method
+ * on {@link PlayerList} and displays whatever that method returns, which keeps
+ * the view and the data layer cleanly separated. All user input is checked
+ * before it is passed on, and any problem is reported as an inline message under
+ * the form rather than as a crash.
  *
- * Shows every player in a table, with a form below for adding and editing.
- * All CRUD operations and the custom action are available as buttons.
- * The GUI never touches the data directly: it calls methods on PlayerList
- * and displays whatever those methods return, keeping the MVC separation.
- *
- * All user input is validated before it reaches the logic layer, and any
- * error is shown as an inline red message rather than crashing the program.
+ * @author Ralph Alexandre
+ * @version 4.0
  */
 public class PlayerGUI {
 
@@ -55,13 +59,21 @@ public class PlayerGUI {
     private JLabel errorLabel;
     private JLabel statusLabel;
 
+    /**
+     * Creates the interface and links it to the data layer it will display.
+     *
+     * @param playerList the connected data layer this interface reads from and
+     *                   writes to
+     */
     public PlayerGUI(PlayerList playerList) {
         this.playerList = playerList;
     }
 
     /**
-     * Builds and shows the window. Returns true once the interface is on screen,
-     * so the launcher can confirm startup succeeded.
+     * Builds every component, loads the current player data, and shows the
+     * window on screen.
+     *
+     * @return true once the window is visible
      */
     public boolean launch() {
         frame = new JFrame("Pickup League Manager");
@@ -151,7 +163,6 @@ public class PlayerGUI {
         th.setForeground(WHITE);
         th.setReorderingAllowed(false);
 
-
         // Colour the eligibility column green (eligible) or red (ineligible)
         table.getColumnModel().getColumn(6).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
@@ -195,21 +206,21 @@ public class PlayerGUI {
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 6));
         bar.setBackground(WHITE);
 
-        JButton loadBtn   = makeButton("Load from file", TEAL_DARK, WHITE);
+        JButton refreshBtn = makeButton("Refresh from database", TEAL_DARK, WHITE);
         JButton addBtn    = makeButton("Add player", TEAL_DARK, WHITE);
         JButton updateBtn = makeButton("Update selected", new Color(60, 52, 137), WHITE);
         JButton deleteBtn = makeButton("Delete selected", new Color(153, 60, 29), WHITE);
         JButton avgBtn    = makeButton("Average age of team", new Color(133, 79, 11), WHITE);
         JButton clearBtn  = makeButton("Clear form", new Color(235, 235, 230), TEXT_DARK);
 
-        loadBtn.addActionListener(e -> doLoadFile());
+        refreshBtn.addActionListener(e -> doRefresh());
         addBtn.addActionListener(e -> doAddPlayer());
         updateBtn.addActionListener(e -> doUpdatePlayer());
         deleteBtn.addActionListener(e -> doDeletePlayer());
         avgBtn.addActionListener(e -> doAverageAge());
         clearBtn.addActionListener(e -> clearForm());
 
-        bar.add(loadBtn);
+        bar.add(refreshBtn);
         bar.add(addBtn);
         bar.add(updateBtn);
         bar.add(deleteBtn);
@@ -307,18 +318,10 @@ public class PlayerGUI {
 
     // ---------- actions ----------
 
-    /** Opens a file chooser, loads the chosen file, and reports the result. */
-    private boolean doLoadFile() {
-        JFileChooser chooser = new JFileChooser();
-        chooser.setDialogTitle("Choose a player data file");
-        int choice = chooser.showOpenDialog(frame);
-        if (choice != JFileChooser.APPROVE_OPTION) {
-            return false;   // the user cancelled; nothing to do
-        }
-        File file = chooser.getSelectedFile();
-        String result = playerList.loadFromFile(file.getAbsolutePath());
+    /** Re-reads all players from the database and refreshes the table. */
+    private boolean doRefresh() {
         refreshTable();
-        showStatus(result);
+        showStatus("Refreshed from database.");
         return true;
     }
 
